@@ -145,7 +145,7 @@ EDB_Status EDB_FS::insertRec(unsigned long recno, EDB_Rec rec)
 
 // Updates a record at a given recno
 EDB_Status EDB_FS::updateRec(unsigned long recno, EDB_Rec rec)
-{-
+{
   if (recno < 0 || recno > EDB_head.n_recs - 1) return EDB_OUT_OF_RANGE;
   writeRec(recno, rec);
   return EDB_OK;
