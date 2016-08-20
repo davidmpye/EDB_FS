@@ -7,13 +7,13 @@
 */
 
 #include "Arduino.h"
-#include "EDB_FS.h"
+#include "EDB-FS.h"
 
 /**************************************************/
 // private functions
 
 // writes EDB_Header
-void EDB_FS::writeHead()
+void EDB-FS::writeHead()
 {
   dbFile.seek(0, SeekSet);
   dbFile.write(EDB_REC EDB_head, (unsigned long)sizeof(EDB_Header));
@@ -21,7 +21,7 @@ void EDB_FS::writeHead()
 }
 
 // reads EDB_Header
-void EDB_FS::readHead()
+void EDB-FS::readHead()
 {
   dbFile.seek(0, SeekSet);
   dbFile.read(EDB_REC EDB_head, (unsigned long)sizeof(EDB_Header));
@@ -30,13 +30,13 @@ void EDB_FS::readHead()
 /**************************************************/
 // public functions
 
-EDB_FS::EDB_FS()
+EDB-FS::EDB-FS()
 {
 
 }
 
 // creates a new table and sets header values
-EDB_Status EDB_FS::create(const char *name, unsigned long tablesize, unsigned int recsize)
+EDB_Status EDB-FS::create(const char *name, unsigned long tablesize, unsigned int recsize)
 {
   dbFileName = name;
   SPIFFS.begin();
@@ -52,7 +52,7 @@ EDB_Status EDB_FS::create(const char *name, unsigned long tablesize, unsigned in
   return EDB_OK;
 }
 
-EDB_Status EDB_FS::open(const char *name) {
+EDB_Status EDB-FS::open(const char *name) {
   dbFileName = name;
   SPIFFS.begin();
   dbFile = SPIFFS.open(dbFileName, "r+");
@@ -61,7 +61,7 @@ EDB_Status EDB_FS::open(const char *name) {
 }
 
 // writes a record to a given recno
-EDB_Status EDB_FS::writeRec(unsigned long recno, const EDB_Rec rec)
+EDB_Status EDB-FS::writeRec(unsigned long recno, const EDB_Rec rec)
 {
   dbFile.seek(EDB_table_ptr + (recno * EDB_head.rec_size), SeekSet);
   dbFile.write(rec, EDB_head.rec_size);
@@ -70,7 +70,7 @@ EDB_Status EDB_FS::writeRec(unsigned long recno, const EDB_Rec rec)
 }
 
 // reads a record from a given recno
-EDB_Status EDB_FS::readRec(unsigned long recno, EDB_Rec rec)
+EDB_Status EDB-FS::readRec(unsigned long recno, EDB_Rec rec)
 {
   if (recno < 0 || recno > EDB_head.n_recs - 1) return EDB_OUT_OF_RANGE;
   dbFile.seek(EDB_table_ptr + (recno * EDB_head.rec_size), SeekSet);
@@ -79,7 +79,7 @@ EDB_Status EDB_FS::readRec(unsigned long recno, EDB_Rec rec)
 }
 
 // Deletes a record at a given recno
-EDB_Status EDB_FS::deleteRec(unsigned long recno)
+EDB_Status EDB-FS::deleteRec(unsigned long recno)
 {
   if (recno < 0 || recno > EDB_head.n_recs - 1) return  EDB_OUT_OF_RANGE;
   //Buffer
@@ -111,7 +111,7 @@ EDB_Status EDB_FS::deleteRec(unsigned long recno)
 // Inserts a record at a given recno, increasing all following records' recno by 1.
 // This function becomes increasingly inefficient as it's currently implemented and
 // is the slowest way to add a record.
-EDB_Status EDB_FS::insertRec(unsigned long recno, EDB_Rec rec)
+EDB_Status EDB-FS::insertRec(unsigned long recno, EDB_Rec rec)
 {
   if (count() == limit()) return EDB_TABLE_FULL;
   if (count() > 0 && (recno < 0 || recno > EDB_head.n_recs - 1)) return EDB_OUT_OF_RANGE;
@@ -144,8 +144,8 @@ EDB_Status EDB_FS::insertRec(unsigned long recno, EDB_Rec rec)
 }
 
 // Updates a record at a given recno
-EDB_Status EDB_FS::updateRec(unsigned long recno, EDB_Rec rec)
-{
+EDB_Status EDB-FS::updateRec(unsigned long recno, EDB_Rec rec)
+{-
   if (recno < 0 || recno > EDB_head.n_recs - 1) return EDB_OUT_OF_RANGE;
   writeRec(recno, rec);
   return EDB_OK;
@@ -153,7 +153,7 @@ EDB_Status EDB_FS::updateRec(unsigned long recno, EDB_Rec rec)
 
 // Adds a record to the end of the record set.
 // This is the fastest way to add a record.
-EDB_Status EDB_FS::appendRec(EDB_Rec rec)
+EDB_Status EDB-FS::appendRec(EDB_Rec rec)
 {
   if (EDB_head.n_recs + 1 > limit()) return EDB_TABLE_FULL;
   writeRec(EDB_head.n_recs,rec);
@@ -163,13 +163,13 @@ EDB_Status EDB_FS::appendRec(EDB_Rec rec)
 }
 
 // returns the number of queued items
-unsigned long EDB_FS::count()
+unsigned long EDB-FS::count()
 {
   return EDB_head.n_recs;
 }
 
 // returns the maximum number of items that will fit into the queue
-unsigned long EDB_FS::limit()
+unsigned long EDB-FS::limit()
 {
    // Thanks to oleh.sok...@gmail.com for the next line
    return (EDB_head.table_size - sizeof(EDB_Header)) / EDB_head.rec_size;
