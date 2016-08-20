@@ -33,9 +33,9 @@ typedef byte* EDB_Rec;
 
 #define EDB_REC (byte*)(void*)&
 
-class EDB_FS {
+class EDB-FS {
   public:
-    EDB_FS();
+    EDB-FS();
     EDB_Status open(const char *);
     EDB_Status create(const char *, unsigned long, unsigned int);
     EDB_Status readRec(unsigned long, EDB_Rec);
