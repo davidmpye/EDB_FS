@@ -20,7 +20,9 @@ struct EDB_Header
   unsigned long n_recs;
   unsigned int rec_size;
   unsigned long table_size;
+  char version[33]; //32 byte + null terminator
 };
+
 
 typedef enum EDB_Status {
                           EDB_OK,
@@ -38,6 +40,7 @@ class EDB_FS {
     EDB_FS();
     EDB_Status open(const char *);
     EDB_Status create(const char *, unsigned long, unsigned int);
+    EDB_Status close();
     EDB_Status readRec(unsigned long, EDB_Rec);
     EDB_Status deleteRec(unsigned long);
     EDB_Status insertRec(unsigned long, const EDB_Rec);
@@ -46,10 +49,11 @@ class EDB_FS {
     unsigned long limit();
     unsigned long count();
     void clear();
+	
+    EDB_Status setDBVersion(const char *);
+    const char *DBVersion();
 
   private:
-    unsigned long EDB_head_ptr;
-    unsigned long EDB_table_ptr;
     EDB_Header EDB_head;
     void writeHead();
     void readHead();

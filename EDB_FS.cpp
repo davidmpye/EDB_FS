@@ -16,7 +16,7 @@
 void EDB_FS::writeHead()
 {
   dbFile.seek(0, SeekSet);
-  dbFile.write(EDB_REC EDB_head, (unsigned long)sizeof(EDB_Header));
+  dbFile.write((uint8_t *)&EDB_head, sizeof(EDB_Header));
   dbFile.flush();
 }
 
@@ -24,7 +24,7 @@ void EDB_FS::writeHead()
 void EDB_FS::readHead()
 {
   dbFile.seek(0, SeekSet);
-  dbFile.read(EDB_REC EDB_head, (unsigned long)sizeof(EDB_Header));
+  dbFile.read((uint8_t *)&EDB_head, sizeof(EDB_Header));
 }
 
 /**************************************************/
@@ -43,7 +43,6 @@ EDB_Status EDB_FS::create(const char *name, unsigned long tablesize, unsigned in
   dbFile = SPIFFS.open(name, "w+");
   if (!dbFile) return EDB_ERROR;
 
-  EDB_table_ptr = sizeof(EDB_Header);
   EDB_head.flag = EDB_FLAG;
   EDB_head.n_recs = 0;
   EDB_head.rec_size = recsize;
@@ -56,14 +55,29 @@ EDB_Status EDB_FS::open(const char *name) {
   dbFileName = name;
   SPIFFS.begin();
   dbFile = SPIFFS.open(dbFileName, "r+");
+  readHead();
   if (dbFile) return EDB_OK;
   else return EDB_ERROR;
+}
+
+EDB_Status EDB_FS::close() {
+	dbFile.flush();
+	dbFile.close();
+	return EDB_OK;
+}
+
+EDB_Status EDB_FS::setDBVersion(const char *version) {
+	strncpy(EDB_head.version, version, 33);
+}
+
+const char * EDB_FS::DBVersion() {
+	return EDB_head.version;
 }
 
 // writes a record to a given recno
 EDB_Status EDB_FS::writeRec(unsigned long recno, const EDB_Rec rec)
 {
-  dbFile.seek(EDB_table_ptr + (recno * EDB_head.rec_size), SeekSet);
+  dbFile.seek(sizeof(EDB_Header)  + (recno * EDB_head.rec_size), SeekSet);
   dbFile.write(rec, EDB_head.rec_size);
   dbFile.flush();
   return EDB_OK;
@@ -73,7 +87,7 @@ EDB_Status EDB_FS::writeRec(unsigned long recno, const EDB_Rec rec)
 EDB_Status EDB_FS::readRec(unsigned long recno, EDB_Rec rec)
 {
   if (recno < 0 || recno > EDB_head.n_recs - 1) return EDB_OUT_OF_RANGE;
-  dbFile.seek(EDB_table_ptr + (recno * EDB_head.rec_size), SeekSet);
+  dbFile.seek(sizeof(EDB_Header) + (recno * EDB_head.rec_size), SeekSet);
   dbFile.read(rec, EDB_head.rec_size);
   return EDB_OK;
 }
