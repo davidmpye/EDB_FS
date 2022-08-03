@@ -68,6 +68,7 @@ EDB_Status EDB_FS::close() {
 
 EDB_Status EDB_FS::setDBVersion(const char *version) {
 	strncpy(EDB_head.version, version, 33);
+  return EDB_OK;
 }
 
 const char * EDB_FS::DBVersion() {
