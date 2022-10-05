@@ -8,7 +8,7 @@
   http://www.arduino.cc/playground/Code/ExtendedDatabaseLibrary
 */
 
-#include <FS.h>
+#include <LittleFS.h>
 
 #ifndef EDBFS
 #define EDBFS

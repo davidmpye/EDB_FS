@@ -39,8 +39,8 @@ EDB_FS::EDB_FS()
 EDB_Status EDB_FS::create(const char *name, unsigned long tablesize, unsigned int recsize)
 {
   dbFileName = name;
-  SPIFFS.begin();
-  dbFile = SPIFFS.open(name, "w+");
+  LittleFS.begin();
+  dbFile = LittleFS.open(name, "w+");
   if (!dbFile) return EDB_ERROR;
 
   EDB_head.flag = EDB_FLAG;
@@ -53,8 +53,8 @@ EDB_Status EDB_FS::create(const char *name, unsigned long tablesize, unsigned in
 
 EDB_Status EDB_FS::open(const char *name) {
   dbFileName = name;
-  SPIFFS.begin();
-  dbFile = SPIFFS.open(dbFileName, "r+");
+  LittleFS.begin();
+  dbFile = LittleFS.open(dbFileName, "r+");
   readHead();
   if (dbFile) return EDB_OK;
   else return EDB_ERROR;
@@ -101,7 +101,7 @@ EDB_Status EDB_FS::deleteRec(unsigned long recno)
   unsigned char rec[EDB_head.rec_size];
   
   //Create a temporary file
-  File tmpFile = SPIFFS.open("db_tmp_file", "a");
+  File tmpFile = LittleFS.open("db_tmp_file", "a");
   //Leave room for the header.
   tmpFile.seek(sizeof(EDB_Header), SeekSet);
   //Write all the records except this one into the temporary file.
@@ -114,10 +114,10 @@ EDB_Status EDB_FS::deleteRec(unsigned long recno)
   tmpFile.close();
   dbFile.close();
 
-  SPIFFS.remove(dbFileName); //delete original file.
-  SPIFFS.rename("db_tmp_file", dbFileName);
+  LittleFS.remove(dbFileName); //delete original file.
+  LittleFS.rename("db_tmp_file", dbFileName);
 
-  dbFile = SPIFFS.open(dbFileName, "r+");
+  dbFile = LittleFS.open(dbFileName, "r+");
   EDB_head.n_recs--;
   writeHead();
   return EDB_OK;
@@ -133,7 +133,7 @@ EDB_Status EDB_FS::insertRec(unsigned long recno, EDB_Rec rec)
   if (count() == 0 && recno == 0) return appendRec(rec);
 
   //Create a temporary file
-  File tmpFile = SPIFFS.open("db_tmp_file", "a");
+  File tmpFile = LittleFS.open("db_tmp_file", "a");
   unsigned char buf[EDB_head.rec_size];
   //Leave room for the header to be written.
   tmpFile.seek((unsigned long)sizeof(EDB_Header), SeekSet);
@@ -149,10 +149,10 @@ EDB_Status EDB_FS::insertRec(unsigned long recno, EDB_Rec rec)
   tmpFile.close();
   dbFile.close();
 
-  SPIFFS.remove(dbFileName); //delete original file.
-  SPIFFS.rename("db_tmp_file", dbFileName);
+  LittleFS.remove(dbFileName); //delete original file.
+  LittleFS.rename("db_tmp_file", dbFileName);
 
-  dbFile = SPIFFS.open(dbFileName, "r+");
+  dbFile = LittleFS.open(dbFileName, "r+");
   EDB_head.n_recs++;
   writeHead();
   return EDB_OK;
